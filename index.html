@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#123a5a">
+  <title>Anwesenheit Meisterkurs Kunststoff/Kautschuk</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-locked">
+<div id="authGate" class="auth-gate">
+  <div class="auth-card">
+    <div class="brand-mark auth-mark">AK</div>
+    <p class="eyebrow">MEISTERKURS 2025–2027</p>
+    <h1>Anwesenheitsverwaltung</h1>
+    <p class="muted">Bitte melde dich an. Neue Konten müssen vom Administrator freigegeben werden.</p>
+    <form id="authForm">
+      <label for="authName">Name (nur bei Kontoanfrage)</label>
+      <input id="authName" type="text" autocomplete="name" placeholder="Vor- und Nachname">
+      <label for="authEmail">E-Mail-Adresse</label>
+      <input id="authEmail" type="email" autocomplete="username" required placeholder="name@beispiel.de">
+      <label for="authPassword">Passwort</label>
+      <input id="authPassword" type="password" autocomplete="current-password" required minlength="6" placeholder="Mindestens 6 Zeichen">
+      <div class="auth-actions"><button class="button primary" type="submit" id="loginBtn">Anmelden</button><button class="button secondary" type="button" id="signupBtn">Zugang anfordern</button></div>
+    </form>
+    <p id="authMessage" class="status" role="status" aria-live="polite"></p>
+  </div>
+</div>
+<header class="topbar">
+  <div class="brand-mark">AK</div>
+  <div><strong>Anwesenheitsliste</strong><span>Meisterkurs Kunststoff/Kautschuk · 2025–2027</span></div>
+</header>
+<nav class="app-menu" aria-label="Hauptmenü">
+  <button type="button" class="menu-item active" data-target="attendanceSection"><span>▦</span> Anwesenheit</button>
+  <button type="button" class="menu-item" id="menuOverview"><span>♙</span> Teilnehmeranwesenheit</button>
+  <button type="button" class="menu-item" data-target="pdfSection" id="menuArchive"><span>▤</span> Ablage vergangener Monate</button>
+</nav>
+<main>
+  <section class="intro">
+    <div>
+      <p class="eyebrow">TEILNEHMER CONTINENTAL KORBACH</p>
+      <h1>Monatliche Anwesenheitsliste</h1>
+      <p class="muted">Originalvorlage ausfüllen und nur diese Monatsliste als PDF versenden.</p>
+    </div>
+    <div class="month-card">
+      <label for="month">Monat</label>
+      <input id="month" type="month">
+    </div>
+  </section>
+
+  <section class="panel overview-settings overview-extra">
+    <div class="panel-heading">
+      <div><h2>Kursziel – Übersicht</h2><p class="muted small">Diese Werte dienen nur zur Anzeige und werden hier nicht bearbeitet.</p></div>
+    </div>
+    <div class="settings-grid">
+      <div><label for="totalHours">Gesamtstunden des Kurses</label><input id="totalHours" type="number" min="1" step="1" value="1000"></div>
+      <div><label for="requiredPercent">Erforderliche Anwesenheit (%)</label><input id="requiredPercent" type="number" min="0" max="100" step="1" value="70"></div>
+      <div><label for="weekdayHours">Stunden je Anwesenheitstag (Mo–Fr)</label><input id="weekdayHours" type="number" min="0" step="0.5" value="4"></div>
+      <div><label for="saturdayHours">Stunden je Samstag</label><input id="saturdayHours" type="number" min="0" step="0.5" value="6"></div>
+    </div>
+    <p class="hint">Die Auswertung zeigt die bisher erfassten Unterrichtsstunden und die Anwesenheitsstunden der ausgewählten Person.</p>
+  </section>
+
+  <div class="main-actions">
+    <button class="button secondary" id="saveNow" type="button">Speichern</button>
+    <button class="button secondary" id="refreshApp" type="button">Aktualisieren</button>
+  </div>
+  <section class="panel tab-panel overview-extra" id="overviewPanel">
+    <div class="panel-heading">
+      <div><h2>Teilnehmeransicht – gesamte Anwesenheit</h2><p class="muted small">Anzeige über alle gespeicherten Monate: bisherige Unterrichtsstunden, Anwesenheitsstunden und Stand zum Kursziel.</p></div>
+    </div>
+    <p class="hint">Wähle oben einen Namen aus, um die persönliche Anwesenheit über alle gespeicherten Monate zu sehen. Die Monatsliste und die Gesamtquote werden aus den abgelegten Daten berechnet.</p>
+    <div class="quote-mode">
+      <label class="checkbox-label" for="useCourseTotal">
+        <input id="useCourseTotal" type="checkbox" checked disabled>
+        Stand zum Kursziel anzeigen
+      </label>
+      <p class="muted small" id="quoteModeHelp">Standard: Quote nur bezogen auf die bisher erfassten Unterrichtsstunden.</p>
+    </div>
+    <div class="person-tabs" id="personTabs" role="tablist" aria-label="Persönliche Anwesenheitsauswertung"></div>
+    <div class="participant-review">
+      <div>
+        <label for="reviewParticipant">Name auswählen</label>
+        <select id="reviewParticipant"></select>
+      </div>
+      <div class="review-summary" id="reviewSummary" aria-live="polite"></div>
+    </div>
+    <h3 class="subheading">Monatsübersicht der ausgewählten Person</h3>
+    <div class="table-wrap">
+      <table class="overview-table">
+        <thead><tr><th>Monat</th><th>Anwesenheitstage</th><th>Unterrichtstage</th><th>Quote</th><th>Anwesenheitsstunden</th></tr></thead>
+        <tbody id="personMonthBody"></tbody>
+      </table>
+    </div>
+    <h3 class="subheading">Gesamtübersicht (Lehrkraft)</h3>
+    <div class="table-wrap">
+      <table class="overview-table">
+        <thead><tr><th>Teilnehmer</th><th>Anwesend (Std.)</th><th>Erfasste Soll-Std.</th><th>Anwesenheit</th><th>Stand zum Kursziel</th></tr></thead>
+        <tbody id="overviewBody"></tbody>
+      </table>
+    </div>
+    <h3 class="subheading">Einzelne Tage prüfen und korrigieren</h3>
+    <p class="muted small">Wähle einen Teilnehmer aus und korrigiere dessen Status für jeden Unterrichtstag. Änderungen werden direkt gespeichert und wirken sich auf die persönliche Quote aus.</p>
+    <div class="table-wrap">
+      <table class="overview-table day-review-table">
+        <thead><tr><th>Datum</th><th>Wochentag</th><th>Stunden</th><th>Anwesenheit</th></tr></thead>
+        <tbody id="dayReviewBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel" id="attendanceSection">
+    <div class="panel-heading">
+      <div><h2>Unterrichtstage</h2><p class="muted small">Datum hinzufügen oder entfernen. Kürzel lassen sich direkt in der Tabelle bearbeiten.</p></div>
+      <button id="addDate" class="button secondary">＋ Unterrichtstag</button>
+    </div>
+    <div class="date-entry">
+      <label for="newDate">Neues Datum</label>
+      <input id="newDate" type="date">
+      <button id="addDateValue" class="button secondary">Datum hinzufügen</button>
+    </div>
+    <div class="table-wrap">
+      <table id="attendanceTable">
+        <thead><tr id="tableHead"><th>Nr.</th><th>Nachname</th><th>Vorname</th><th>KST.</th></tr></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <p class="hint">Hinweis: Namen und KST-Nummern können direkt in der Tabelle geändert werden. Änderungen werden für alle Monate in diesem Browser gespeichert. Für eine neue Klasse zuerst „Neue Klasse vorbereiten“ verwenden, damit alte Anwesenheitsdaten nicht versehentlich übernommen werden.</p>
+    <div class="month-pdf-action">
+      <button id="sendMonthPdf" class="button primary" type="button">PDF senden / Druckvorschau</button>
+      <span class="muted small">Öffnet die einseitige PDF der aktuellen Monatsliste.</span>
+    </div>
+  </section>
+
+  <section class="panel settings overview-extra">
+    <div class="panel-heading">
+      <div><h2>Neue Klasse / Kurswechsel</h2><p class="muted small">Löscht die gespeicherten Anwesenheitsmonate, behält aber die Teilnehmerliste zur Bearbeitung.</p></div>
+      <button id="newClass" class="button secondary" type="button">Neue Klasse vorbereiten</button>
+    </div>
+  </section>
+  <section class="panel settings overview-extra" id="pdfSection">
+    <div class="panel-heading">
+      <div><h2>Ablage vergangener Monate</h2><p class="muted small">Gespeicherte Monate öffnen oder die Monatsliste als PDF erstellen und teilen.</p></div>
+    </div>
+    <div class="panel-heading">
+      <div><h2>PDF erstellen und teilen</h2><p class="muted small">Erstelle die Monatsliste als PDF. Danach kannst du sie über die Teilen-Funktion deines Geräts an die Personalabteilung senden.</p></div>
+    </div>
+    <div class="actions">
+      <button id="makePdf" class="button primary">Druckvorschau / PDF</button>
+      <button id="archiveMonth" class="button secondary">Monat speichern & ablegen</button>
+      <button id="sharePdf" class="button success">PDF erstellen & teilen</button>
+    </div>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <div id="archiveList" class="archive-list"></div>
+  </section>
+  <footer>Die Daten werden lokal in diesem Browser gespeichert. Beim PDF-Export wird nur die Monatsliste ausgegeben.</footer>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="app.js"></script>
+<script>if ("serviceWorker" in navigator && location.protocol.startsWith("http")) { window.addEventListener("load", () => navigator.serviceWorker.register("./service-worker.js").catch(() => {})); }</script>
+</body>
+</html>
